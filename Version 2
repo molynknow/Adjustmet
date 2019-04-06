@@ -1,0 +1,78 @@
+#include <Servo.h> //Calls upon servo library
+
+//Constants
+const int sensorPinA = A0; //Sensor A is attached to this pin
+Servo servoR; //Define servo, right side
+Servo servoL; // Define servo. left side
+
+
+
+
+//Define initial sensor variables
+int sensorValue = 0; // Initial sensor value at t=0
+int sensorMin = 1023; //this is the minimum sensor value
+int sensorMax = 0; //this is the maximum sensor value
+
+
+void setup() {
+  // put your setup code here, to run once:
+Serial.begin(9600); //open serial port
+
+
+{
+   while (millis() < 5000) {
+    sensorValue = analogRead(sensorPinA);
+
+    // record the maximum sensor value
+    if (sensorValue > sensorMax) {
+      sensorMax = sensorValue;
+    }
+
+    // record the minimum sensor value
+    if (sensorValue < sensorMin) {
+      sensorMin = sensorValue;
+}
+}
+}pinMode(sensorPinA, INPUT); //define pin mode of 
+
+servoR.attach(8); //attach servo right to pin 8 (Right side)
+servoR.write(0); // define initial servo right placement in degrees 
+servoL.attach(10); //attach servo left to pin 10 (Left side)
+servoL.write(90); // define initial servo left placement in degrees 
+delay(2000);
+
+}
+void loop() {
+  // read the sensor:
+  sensorValue = analogRead(sensorPinA);
+
+  // apply the calibration to the sensor reading
+  sensorValue = map(sensorPinA, sensorMin, sensorMax, 0, 255);
+
+  // in case the sensor value is outside the range seen during calibration
+  sensorValue = constrain(sensorPinA, 0, 255);
+
+  {
+
+int ldrStatus = analogRead(sensorValue); //read photo sensor
+
+if (ldrStatus <=300) {
+ // for glasses down "in the sun"
+servoR.write(1);
+servoL.write(88);
+delay(100);
+
+Serial.println("glasses up"); //used for help when gluing the arms to servos 
+
+}
+
+else {
+// for glasses up "in the shade/indoors"
+servoR.write(30);  // define servo position when not bright enough 
+servoL.write(30); // define servo position when not bright enough 
+delay(100);
+Serial.println("glasses down"); //used for help when gluing the arms to servos 
+
+}
+}
+}
